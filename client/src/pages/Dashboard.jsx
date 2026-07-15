@@ -8,13 +8,13 @@ function Dashboard() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#f5f7fb",
+        background: "#7fbb32",
         padding: "40px",
       }}
     >
       <h1>Ride Booking Dashboard</h1>
 
-      {/* Pickup Location */}
+      {/* Pickup */}
       <div
         style={{
           background: "white",
@@ -49,7 +49,7 @@ function Dashboard() {
         />
       </div>
 
-      {/* Drop Location */}
+      {/* Drop */}
       <div
         style={{
           background: "white",
@@ -82,6 +82,76 @@ function Dashboard() {
             fontSize: "16px",
           }}
         />
+      </div>
+
+      {/* Ride Type */}
+      <div
+        style={{
+          background: "white",
+          padding: "20px",
+          borderRadius: "10px",
+          marginTop: "20px",
+          maxWidth: "700px",
+        }}
+      >
+        <label
+          style={{
+            fontWeight: "bold",
+            display: "block",
+            marginBottom: "20px",
+          }}
+        >
+          Select Ride Type
+        </label>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "20px",
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontSize: "50px" }}>🏍️</div>
+            <h3>Bike</h3>
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "20px",
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontSize: "50px" }}>🛺</div>
+            <h3>Auto</h3>
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              border: "1px solid #ccc",
+              borderRadius: "10px",
+              padding: "20px",
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontSize: "50px" }}>🚗</div>
+            <h3>Car</h3>
+          </div>
+        </div>
       </div>
     </div>
   );
