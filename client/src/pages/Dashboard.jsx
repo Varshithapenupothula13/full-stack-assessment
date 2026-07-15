@@ -9,26 +9,35 @@ function Dashboard() {
       style={{
         minHeight: "100vh",
         background: "#7fbb32",
-        padding: "40px",
+        padding: "20px",
       }}
     >
-      <h1>Ride Booking Dashboard</h1>
+      <h1
+        style={{
+          fontSize: "28px",
+          textAlign: "center",
+          marginBottom: "20px",
+        }}
+      >
+        Ride Booking Dashboard
+      </h1>
 
       {/* Pickup */}
       <div
         style={{
           background: "white",
-          padding: "20px",
+          padding: "15px",
           borderRadius: "10px",
-          marginTop: "20px",
-          maxWidth: "500px",
+          margin: "15px auto",
+          maxWidth: "380px",
         }}
       >
         <label
           style={{
             fontWeight: "bold",
             display: "block",
-            marginBottom: "10px",
+            marginBottom: "8px",
+            fontSize: "16px",
           }}
         >
           Pickup Location
@@ -41,10 +50,11 @@ function Dashboard() {
           onChange={(e) => setPickup(e.target.value)}
           style={{
             width: "100%",
-            padding: "12px",
+            padding: "10px",
             borderRadius: "8px",
             border: "1px solid #ccc",
-            fontSize: "16px",
+            fontSize: "14px",
+            boxSizing: "border-box",
           }}
         />
       </div>
@@ -53,17 +63,18 @@ function Dashboard() {
       <div
         style={{
           background: "white",
-          padding: "20px",
+          padding: "15px",
           borderRadius: "10px",
-          marginTop: "20px",
-          maxWidth: "500px",
+          margin: "15px auto",
+          maxWidth: "380px",
         }}
       >
         <label
           style={{
             fontWeight: "bold",
             display: "block",
-            marginBottom: "10px",
+            marginBottom: "8px",
+            fontSize: "16px",
           }}
         >
           Drop Location
@@ -76,10 +87,11 @@ function Dashboard() {
           onChange={(e) => setDrop(e.target.value)}
           style={{
             width: "100%",
-            padding: "12px",
+            padding: "10px",
             borderRadius: "8px",
             border: "1px solid #ccc",
-            fontSize: "16px",
+            fontSize: "14px",
+            boxSizing: "border-box",
           }}
         />
       </div>
@@ -88,17 +100,19 @@ function Dashboard() {
       <div
         style={{
           background: "white",
-          padding: "20px",
+          padding: "15px",
           borderRadius: "10px",
-          marginTop: "20px",
-          maxWidth: "700px",
+          margin: "15px auto",
+          maxWidth: "380px",
         }}
       >
         <label
           style={{
             fontWeight: "bold",
             display: "block",
-            marginBottom: "20px",
+            marginBottom: "15px",
+            textAlign: "center",
+            fontSize: "16px",
           }}
         >
           Select Ride Type
@@ -107,7 +121,7 @@ function Dashboard() {
         <div
           style={{
             display: "flex",
-            gap: "20px",
+            gap: "10px",
           }}
         >
           <div
@@ -115,13 +129,13 @@ function Dashboard() {
               flex: 1,
               border: "1px solid #ccc",
               borderRadius: "10px",
-              padding: "20px",
+              padding: "10px",
               textAlign: "center",
               cursor: "pointer",
             }}
           >
-            <div style={{ fontSize: "50px" }}>🏍️</div>
-            <h3>Bike</h3>
+            <div style={{ fontSize: "32px" }}>🏍️</div>
+            <h4>Bike</h4>
           </div>
 
           <div
@@ -129,13 +143,13 @@ function Dashboard() {
               flex: 1,
               border: "1px solid #ccc",
               borderRadius: "10px",
-              padding: "20px",
+              padding: "10px",
               textAlign: "center",
               cursor: "pointer",
             }}
           >
-            <div style={{ fontSize: "50px" }}>🛺</div>
-            <h3>Auto</h3>
+            <div style={{ fontSize: "32px" }}>🛺</div>
+            <h4>Auto</h4>
           </div>
 
           <div
@@ -143,13 +157,13 @@ function Dashboard() {
               flex: 1,
               border: "1px solid #ccc",
               borderRadius: "10px",
-              padding: "20px",
+              padding: "10px",
               textAlign: "center",
               cursor: "pointer",
             }}
           >
-            <div style={{ fontSize: "50px" }}>🚗</div>
-            <h3>Car</h3>
+            <div style={{ fontSize: "32px" }}>🚗</div>
+            <h4>Car</h4>
           </div>
         </div>
       </div>
