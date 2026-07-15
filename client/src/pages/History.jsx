@@ -69,24 +69,47 @@ function History() {
             No bookings found.
           </div>
         ) : (
-          bookings.map((booking) => (
+          bookings.map((booking, index) => (
             <div
               key={booking._id}
               style={{
-                background: "white",
-                padding: "18px",
-                borderRadius: "10px",
-                marginBottom: "15px",
+                background: "#1f2937",
+                color: "#fff",
+                padding: "20px",
+                borderRadius: "12px",
+                marginBottom: "20px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
               }}
             >
-              <h3>{booking.rideType}</h3>
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  fontSize: "22px",
+                }}
+              >
+                Booking #{index + 1}
+              </h3>
 
-              <p>
-                <strong>Pickup:</strong> {booking.pickup}
+              <p
+                style={{
+                  color: "#d1d5db",
+                  fontSize: "13px",
+                  marginBottom: "15px",
+                }}
+              >
+                {new Date().toLocaleString()}
               </p>
 
-              <p>
-                <strong>Drop:</strong> {booking.drop}
+              <p style={{ marginBottom: "10px" }}>
+                <strong>📍 Pickup:</strong> {booking.pickup}
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>🏁 Drop:</strong> {booking.drop}
+              </p>
+
+              <p style={{ marginBottom: "0" }}>
+                <strong>🚗 Ride Type:</strong> {booking.rideType}
               </p>
             </div>
           ))
