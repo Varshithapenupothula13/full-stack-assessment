@@ -221,7 +221,10 @@ function Dashboard() {
             boxShadow: "0 6px 15px rgba(0,0,0,0.25)",
           }}
         >
-          <MapView />
+          <MapView
+          pickup={pickup}
+          drop={drop}
+         />
         </div>
       </div>
     </div>
