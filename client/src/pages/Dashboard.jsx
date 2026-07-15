@@ -1,8 +1,51 @@
+import { useState } from "react";
+
 function Dashboard() {
+  const [pickup, setPickup] = useState("");
+
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome to Ride Booking App</p>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f5f7fb",
+        padding: "40px",
+      }}
+    >
+      <h1>Ride Booking Dashboard</h1>
+
+      <div
+        style={{
+          background: "white",
+          padding: "20px",
+          borderRadius: "10px",
+          marginTop: "20px",
+          maxWidth: "500px",
+        }}
+      >
+        <label
+          style={{
+            fontWeight: "bold",
+            display: "block",
+            marginBottom: "10px",
+          }}
+        >
+          Pickup Location
+        </label>
+
+        <input
+          type="text"
+          placeholder="Enter pickup location"
+          value={pickup}
+          onChange={(e) => setPickup(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontSize: "16px",
+          }}
+        />
+      </div>
     </div>
   );
 }
