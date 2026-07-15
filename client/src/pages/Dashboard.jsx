@@ -3,14 +3,38 @@ import { useState } from "react";
 function Dashboard() {
   const [pickup, setPickup] = useState("");
   const [drop, setDrop] = useState("");
-  const [selectedRide, setSelectedRide] = useState("Car"); // Default selection
+  const [selectedRide, setSelectedRide] = useState("Car");
 
-  const handleBookRide = () => {
+  const handleBookRide = async () => {
     if (!pickup || !drop) {
       alert("Please enter both Pickup and Drop locations!");
       return;
     }
-    alert(`Booking a ${selectedRide} from "${pickup}" to "${drop}"!`);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/bookings/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          pickup,
+          drop,
+          rideType: selectedRide,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server error");
+    }
   };
 
   return (
@@ -22,10 +46,9 @@ function Dashboard() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        fontFamily: "system-ui, -apple-system, sans-serif"
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Container size modified (360px) */}
       <div style={{ width: "100%", maxWidth: "360px" }}>
         <h1
           style={{
@@ -33,20 +56,18 @@ function Dashboard() {
             fontSize: "24px",
             marginBottom: "15px",
             color: "#fff",
-            textShadow: "1px 1px 3px rgba(0,0,0,0.2)"
           }}
         >
           Ride Booking
         </h1>
 
-        {/* Pickup */}
+        {/* Pickup Location */}
         <div
           style={{
             background: "#fff",
             padding: "12px",
             borderRadius: "8px",
             marginBottom: "10px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}
         >
           <label
@@ -76,14 +97,13 @@ function Dashboard() {
           />
         </div>
 
-        {/* Drop */}
+        {/* Drop Location */}
         <div
           style={{
             background: "#fff",
             padding: "12px",
             borderRadius: "8px",
             marginBottom: "12px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}
         >
           <label
@@ -113,14 +133,13 @@ function Dashboard() {
           />
         </div>
 
-        {/* Ride Type Selection with Emojis */}
+        {/* Select Ride Type */}
         <div
           style={{
             background: "#fff",
             padding: "12px",
             borderRadius: "8px",
             marginBottom: "15px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}
         >
           <h3
@@ -145,24 +164,20 @@ function Dashboard() {
               onClick={() => setSelectedRide("Bike")}
               style={{
                 flex: 1,
-                border: selectedRide === "Bike" ? "2px solid #0d6efd" : "1px solid #ddd",
-                background: selectedRide === "Bike" ? "#f0f7ff" : "#fff",
+                border:
+                  selectedRide === "Bike"
+                    ? "2px solid #0d6efd"
+                    : "1px solid #ddd",
+                background:
+                  selectedRide === "Bike" ? "#f0f7ff" : "#fff",
                 borderRadius: "6px",
-                padding: "8px 5px",
+                padding: "8px",
                 textAlign: "center",
                 cursor: "pointer",
-                transition: "all 0.2s"
               }}
             >
-              <span style={{ fontSize: "28px" }} role="img" aria-label="Bike">🏍️</span>
-              <p
-                style={{
-                  marginTop: "4px",
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  margin: "4px 0 0 0"
-                }}
-              >
+              <div style={{ fontSize: "28px" }}>🏍️</div>
+              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
                 Bike
               </p>
             </div>
@@ -172,24 +187,20 @@ function Dashboard() {
               onClick={() => setSelectedRide("Auto")}
               style={{
                 flex: 1,
-                border: selectedRide === "Auto" ? "2px solid #0d6efd" : "1px solid #ddd",
-                background: selectedRide === "Auto" ? "#f0f7ff" : "#fff",
+                border:
+                  selectedRide === "Auto"
+                    ? "2px solid #0d6efd"
+                    : "1px solid #ddd",
+                background:
+                  selectedRide === "Auto" ? "#f0f7ff" : "#fff",
                 borderRadius: "6px",
-                padding: "8px 5px",
+                padding: "8px",
                 textAlign: "center",
                 cursor: "pointer",
-                transition: "all 0.2s"
               }}
             >
-              <span style={{ fontSize: "28px" }} role="img" aria-label="Auto">🛺</span>
-              <p
-                style={{
-                  marginTop: "4px",
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  margin: "4px 0 0 0"
-                }}
-              >
+              <div style={{ fontSize: "28px" }}>🛺</div>
+              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
                 Auto
               </p>
             </div>
@@ -199,31 +210,27 @@ function Dashboard() {
               onClick={() => setSelectedRide("Car")}
               style={{
                 flex: 1,
-                border: selectedRide === "Car" ? "2px solid #0d6efd" : "1px solid #ddd",
-                background: selectedRide === "Car" ? "#f0f7ff" : "#fff",
+                border:
+                  selectedRide === "Car"
+                    ? "2px solid #0d6efd"
+                    : "1px solid #ddd",
+                background:
+                  selectedRide === "Car" ? "#f0f7ff" : "#fff",
                 borderRadius: "6px",
-                padding: "8px 5px",
+                padding: "8px",
                 textAlign: "center",
                 cursor: "pointer",
-                transition: "all 0.2s"
               }}
             >
-              <span style={{ fontSize: "28px" }} role="img" aria-label="Car">🚗</span>
-              <p
-                style={{
-                  marginTop: "4px",
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  margin: "4px 0 0 0"
-                }}
-              >
+              <div style={{ fontSize: "28px" }}>🚗</div>
+              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
                 Car
               </p>
             </div>
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Book Button */}
         <div style={{ textAlign: "center" }}>
           <button
             onClick={handleBookRide}
@@ -237,7 +244,6 @@ function Dashboard() {
               fontWeight: "bold",
               cursor: "pointer",
               width: "100%",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.15)"
             }}
           >
             Book {selectedRide}
