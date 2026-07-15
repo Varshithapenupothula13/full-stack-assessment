@@ -4,10 +4,19 @@ export const createBooking = async (req, res) => {
   try {
     const { pickup, drop, rideType } = req.body;
 
+    // Temporary calculations (later map integration tho real values vastayi)
+    const distance = Math.floor(Math.random() * 15) + 3; // 3 - 17 km
+    const fare = 50 + distance * 15;
+    const duration = `${distance * 4} mins`;
+
     const booking = new Booking({
       pickup,
       drop,
       rideType,
+      distance,
+      fare,
+      duration,
+      status: "Pending",
     });
 
     await booking.save();

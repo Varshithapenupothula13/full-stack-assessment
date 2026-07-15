@@ -16,6 +16,7 @@ function History() {
         minHeight: "100vh",
         background: "#0c381e",
         padding: "20px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
       {/* Navbar */}
@@ -45,13 +46,19 @@ function History() {
         </div>
       </div>
 
-      {/* History */}
-      <div style={{ width: "100%", maxWidth: "700px", margin: "auto" }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "750px",
+          margin: "auto",
+        }}
+      >
         <h2
           style={{
             color: "white",
             textAlign: "center",
-            marginBottom: "20px",
+            marginBottom: "25px",
+            fontSize: "28px",
           }}
         >
           Your Booking History
@@ -62,7 +69,7 @@ function History() {
             style={{
               background: "white",
               padding: "20px",
-              borderRadius: "8px",
+              borderRadius: "10px",
               textAlign: "center",
             }}
           >
@@ -71,46 +78,118 @@ function History() {
         ) : (
           bookings.map((booking, index) => (
             <div
-              key={booking._id}
+              key={booking._id || index}
               style={{
                 background: "#1f2937",
-                color: "#fff",
-                padding: "20px",
+                color: "white",
                 borderRadius: "12px",
+                padding: "20px",
                 marginBottom: "20px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
               }}
             >
-              <h3
+              <div
                 style={{
-                  margin: "0 0 8px 0",
-                  fontSize: "22px",
-                }}
-              >
-                Booking #{index + 1}
-              </h3>
-
-              <p
-                style={{
-                  color: "#d1d5db",
-                  fontSize: "13px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                   marginBottom: "15px",
                 }}
               >
-                {new Date().toLocaleString()}
+                <div>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: "22px",
+                    }}
+                  >
+                    Booking #{index + 1}
+                  </h3>
+
+                  <p
+                    style={{
+                      marginTop: "6px",
+                      color: "#cbd5e1",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {booking.createdAt 
+                      ? new Date(booking.createdAt).toLocaleString() 
+                      : new Date().toLocaleString()}
+                  </p>
+                </div>
+
+                <span
+                  style={{
+                    background: "#f59e0b",
+                    padding: "6px 14px",
+                    borderRadius: "20px",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Pending
+                </span>
+              </div>
+
+              <p style={{ marginBottom: "10px" }}>
+                📍 <strong>Pickup:</strong> {booking.pickup}
               </p>
 
               <p style={{ marginBottom: "10px" }}>
-                <strong>📍 Pickup:</strong> {booking.pickup}
+                🏁 <strong>Drop:</strong> {booking.drop}
               </p>
 
-              <p style={{ marginBottom: "10px" }}>
-                <strong>🏁 Drop:</strong> {booking.drop}
-              </p>
+              {/* Part 2 Code Starts Here */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderTop: "1px solid #374151",
+                  marginTop: "15px",
+                  paddingTop: "15px",
+                }}
+              >
+                <div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "13px",
+                      color: "#cbd5e1",
+                    }}
+                  >
+                    Ride Type
+                  </p>
+                  <strong>{booking.rideType}</strong>
+                </div>
 
-              <p style={{ marginBottom: "0" }}>
-                <strong>🚗 Ride Type:</strong> {booking.rideType}
-              </p>
+                <div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "13px",
+                      color: "#cbd5e1",
+                    }}
+                  >
+                    Distance
+                  </p>
+                  <strong>{booking.distance} km</strong>
+                </div>
+
+                <div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "13px",
+                      color: "#cbd5e1",
+                    }}
+                  >
+                    Fare
+                  </p>
+                  <strong style={{ color: "#22c55e" }}>₹{booking.fare.toFixed(2)}</strong>
+                </div>
+              </div>
             </div>
           ))
         )}

@@ -15,6 +15,18 @@ const bookingSchema = new mongoose.Schema(
       enum: ["Bike", "Auto", "Car"],
       required: true,
     },
+    distance: {
+      type: Number,
+      default: 0,
+    },
+    fare: {
+      type: Number,
+      default: 0,
+    },
+    duration: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       default: "Pending",
