@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MapView from "../components/MapView";
 
 function Dashboard() {
   const [pickup, setPickup] = useState("");
@@ -12,17 +13,20 @@ function Dashboard() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/bookings/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          pickup,
-          drop,
-          rideType: selectedRide,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/bookings/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            pickup,
+            drop,
+            rideType: selectedRide,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -42,121 +46,98 @@ function Dashboard() {
       style={{
         minHeight: "100vh",
         background: "#0c381e",
-        padding: "15px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        padding: "25px",
+        fontFamily: "system-ui, sans-serif",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "360px" }}>
-        <h1
-          style={{
-            textAlign: "center",
-            fontSize: "24px",
-            marginBottom: "15px",
-            color: "#fff",
-          }}
-        >
-          Ride Booking
-        </h1>
+      <h1
+        style={{
+          color: "#fff",
+          textAlign: "center",
+          marginBottom: "25px",
+        }}
+      >
+        Ride Booking
+      </h1>
 
-        {/* Pickup Location */}
+      <div
+        style={{
+          display: "flex",
+          gap: "25px",
+          alignItems: "flex-start",
+          maxWidth: "1400px",
+          margin: "0 auto",
+        }}
+      >
+        {/* LEFT SIDE FORM */}
         <div
           style={{
+            width: "360px",
             background: "#fff",
-            padding: "12px",
-            borderRadius: "8px",
-            marginBottom: "10px",
+            padding: "20px",
+            borderRadius: "12px",
+            boxShadow: "0 6px 15px rgba(0,0,0,0.25)",
           }}
         >
-          <label
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              fontSize: "14px",
-              marginBottom: "6px",
-            }}
-          >
-            📍 Pickup Location
-          </label>
+          {/* Pickup */}
+          <div style={{ marginBottom: "15px" }}>
+            <label
+              style={{
+                fontWeight: "bold",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              📍 Pickup Location
+            </label>
+            <input
+              type="text"
+              placeholder="Enter pickup location"
+              value={pickup}
+              onChange={(e) => setPickup(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
 
-          <input
-            type="text"
-            placeholder="Enter pickup location"
-            value={pickup}
-            onChange={(e) => setPickup(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              fontSize: "13px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
+          {/* Drop */}
+          <div style={{ marginBottom: "15px" }}>
+            <label
+              style={{
+                fontWeight: "bold",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              🏁 Drop Location
+            </label>
+            <input
+              type="text"
+              placeholder="Enter drop location"
+              value={drop}
+              onChange={(e) => setDrop(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
 
-        {/* Drop Location */}
-        <div
-          style={{
-            background: "#fff",
-            padding: "12px",
-            borderRadius: "8px",
-            marginBottom: "12px",
-          }}
-        >
-          <label
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              fontSize: "14px",
-              marginBottom: "6px",
-            }}
-          >
-            🏁 Drop Location
-          </label>
-
-          <input
-            type="text"
-            placeholder="Enter drop location"
-            value={drop}
-            onChange={(e) => setDrop(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px",
-              fontSize: "13px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
-
-        {/* Select Ride Type */}
-        <div
-          style={{
-            background: "#fff",
-            padding: "12px",
-            borderRadius: "8px",
-            marginBottom: "15px",
-          }}
-        >
-          <h3
-            style={{
-              textAlign: "center",
-              fontSize: "16px",
-              margin: "0 0 10px 0",
-            }}
-          >
-            Select Ride Type
-          </h3>
+          <h3 style={{ textAlign: "center" }}>Select Ride Type</h3>
 
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              gap: "8px",
+              gap: "10px",
+              marginBottom: "20px",
             }}
           >
             {/* Bike */}
@@ -164,22 +145,16 @@ function Dashboard() {
               onClick={() => setSelectedRide("Bike")}
               style={{
                 flex: 1,
-                border:
-                  selectedRide === "Bike"
-                    ? "2px solid #0d6efd"
-                    : "1px solid #ddd",
-                background:
-                  selectedRide === "Bike" ? "#f0f7ff" : "#fff",
-                borderRadius: "6px",
-                padding: "8px",
+                border: selectedRide === "Bike" ? "2px solid #0d6efd" : "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
                 textAlign: "center",
                 cursor: "pointer",
+                background: selectedRide === "Bike" ? "#eef6ff" : "#fff",
               }}
             >
               <div style={{ fontSize: "28px" }}>🏍️</div>
-              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
-                Bike
-              </p>
+              <p style={{ margin: "5px 0 0 0" }}>Bike</p>
             </div>
 
             {/* Auto */}
@@ -187,22 +162,16 @@ function Dashboard() {
               onClick={() => setSelectedRide("Auto")}
               style={{
                 flex: 1,
-                border:
-                  selectedRide === "Auto"
-                    ? "2px solid #0d6efd"
-                    : "1px solid #ddd",
-                background:
-                  selectedRide === "Auto" ? "#f0f7ff" : "#fff",
-                borderRadius: "6px",
-                padding: "8px",
+                border: selectedRide === "Auto" ? "2px solid #0d6efd" : "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
                 textAlign: "center",
                 cursor: "pointer",
+                background: selectedRide === "Auto" ? "#eef6ff" : "#fff",
               }}
             >
               <div style={{ fontSize: "28px" }}>🛺</div>
-              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
-                Auto
-              </p>
+              <p style={{ margin: "5px 0 0 0" }}>Auto</p>
             </div>
 
             {/* Car */}
@@ -210,44 +179,49 @@ function Dashboard() {
               onClick={() => setSelectedRide("Car")}
               style={{
                 flex: 1,
-                border:
-                  selectedRide === "Car"
-                    ? "2px solid #0d6efd"
-                    : "1px solid #ddd",
-                background:
-                  selectedRide === "Car" ? "#f0f7ff" : "#fff",
-                borderRadius: "6px",
-                padding: "8px",
+                border: selectedRide === "Car" ? "2px solid #0d6efd" : "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "10px",
                 textAlign: "center",
                 cursor: "pointer",
+                background: selectedRide === "Car" ? "#eef6ff" : "#fff",
               }}
             >
               <div style={{ fontSize: "28px" }}>🚗</div>
-              <p style={{ fontWeight: "bold", fontSize: "12px", margin: "4px 0 0 0" }}>
-                Car
-              </p>
+              <p style={{ margin: "5px 0 0 0" }}>Car</p>
             </div>
           </div>
-        </div>
 
-        {/* Book Button */}
-        <div style={{ textAlign: "center" }}>
           <button
             onClick={handleBookRide}
             style={{
+              width: "100%",
               background: "#0d6efd",
               color: "#fff",
               border: "none",
-              borderRadius: "6px",
-              padding: "8px 20px",
-              fontSize: "14px",
+              borderRadius: "8px",
+              padding: "12px",
+              fontSize: "16px",
               fontWeight: "bold",
               cursor: "pointer",
-              width: "100%",
             }}
           >
             Book {selectedRide}
           </button>
+        </div>
+
+        {/* RIGHT SIDE MAP */}
+        <div
+          style={{
+            flex: 1,
+            background: "#fff",
+            borderRadius: "12px",
+            overflow: "hidden",
+            height: "650px",
+            boxShadow: "0 6px 15px rgba(0,0,0,0.25)",
+          }}
+        >
+          <MapView />
         </div>
       </div>
     </div>
