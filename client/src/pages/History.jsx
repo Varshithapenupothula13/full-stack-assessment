@@ -2,198 +2,137 @@ import { useEffect, useState } from "react";
 
 function History() {
   const [bookings, setBookings] = useState([]);
-  const [search, setSearch] = useState("");
-const [rideFilter, setRideFilter] = useState("All");
-const [sortBy, setSortBy] = useState("newest");
-  const fetchBookings = () => {
-    fetch("http://localhost:5000/api/bookings/history")
-      .then((res) => res.json())
-      .then((data) => setBookings(data))
-      .catch((err) => console.log(err));
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/bookings/history");
+      const data = await response.json();
+      if (response.ok) {
+        setBookings(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch history:", error);
+    }
   };
 
   useEffect(() => {
-    fetchBookings();
+    fetchHistory();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this booking?"
-    );
-
-    if (!confirmDelete) return;
-
+  const handleUpdateStatus = async (id, currentStatus) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/bookings/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const nextStatus = currentStatus === "Pending" ? "Confirmed" : "Completed";
+      const response = await fetch(`http://localhost:5000/api/bookings/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert(data.message);
-        setBookings(bookings.filter((booking) => booking._id !== id));
+      const data = await response.json();
+      if (response.ok) {
+        alert("Status updated successfully!");
+        fetchHistory();
       } else {
-        alert(data.message);
+        alert(data.message || "Failed to update status");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert("Server Error");
     }
   };
-  const filteredBookings = bookings
-  .filter((booking) => {
-    const matchesSearch =
-      booking.pickup.toLowerCase().includes(search.toLowerCase()) ||
-      booking.drop.toLowerCase().includes(search.toLowerCase());
 
-    const matchesRide =
-      rideFilter === "All" || booking.rideType === rideFilter;
+  const handleDeleteBooking = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/bookings/delete/${id}`, {
+        method: "DELETE",
+      });
 
-    return matchesSearch && matchesRide;
-  })
-  .sort((a, b) => {
-    if (sortBy === "fareLow") return a.fare - b.fare;
-    if (sortBy === "fareHigh") return b.fare - a.fare;
-    if (sortBy === "oldest")
-      return new Date(a.createdAt) - new Date(b.createdAt);
+      const data = await response.json();
+      if (response.ok) {
+        alert("Booking deleted successfully!");
+        fetchHistory();
+      } else {
+        alert(data.message || "Failed to delete booking");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server Error");
+    }
+  };
 
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#0c381e",
-        padding: "20px",
-        fontFamily: "system-ui",
-      }}
-    >
-      <h1
-        style={{
-          color: "white",
-          textAlign: "center",
-          marginBottom: "30px",
+    <div style={{ maxWidth: "800px", margin: "40px auto", padding: "0 20px" }}>
+      <h2 
+        style={{ 
+          color: "#432c46", 
+          marginBottom: "30px", 
+          textAlign: "center", 
+          fontFamily: "sans-serif",
+          fontSize: "28px",
+          fontWeight: "bold"
         }}
       >
-        Booking History
-      </h1>
-<div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    gap: "10px",
-    marginBottom: "20px",
-  }}
->
-  <input
-    type="text"
-    placeholder="Search Pickup or Drop"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    style={{
-      padding: "10px",
-      width: "250px",
-      borderRadius: "6px",
-      border: "1px solid #ccc",
-    }}
-  />
-<select
-  value={rideFilter}
-  onChange={(e) => setRideFilter(e.target.value)}
-  style={{
-    padding: "10px",
-    borderRadius: "6px",
-  }}
->
-  <option value="All">All</option>
-  <option value="Bike">Bike</option>
-  <option value="Auto">Auto</option>
-  <option value="Car">Car</option>
-</select>
-<select
-  value={sortBy}
-  onChange={(e) => setSortBy(e.target.value)}
-  style={{
-    padding: "10px",
-    borderRadius: "6px",
-  }}
->
-  <option value="newest">Newest</option>
-  <option value="oldest">Oldest</option>
-  <option value="fareLow">Fare Low → High</option>
-  <option value="fareHigh">Fare High → Low</option>
-</select>
-  </div>
-      {filteredBookings.length === 0 ? (
-        <div
-          style={{
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            textAlign: "center",
-          }}
-        >
-          No Bookings Found
-        </div>
-      ) : (
-        filteredBookings.map((booking) => (
+        Ride Booking History
+      </h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {bookings.map((booking) => (
           <div
             key={booking._id}
             style={{
-              background: "white",
+              background: "#dfdfdf",
               padding: "20px",
-              borderRadius: "10px",
-              marginBottom: "20px",
-              boxShadow: "0 5px 15px rgba(0,0,0,0.2)",
+              borderRadius: "12px",
+              width: "100%",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+              fontFamily: "sans-serif",
+              boxSizing: "border-box",
             }}
           >
-            <h3>{booking.rideType}</h3>
+            <h3 style={{ margin: "0 0 10px 0", color: "#333" }}>
+              {booking.rideType}
+            </h3>
+            <p><strong>Pickup:</strong> {booking.pickup}</p>
+            <p><strong>Drop:</strong> {booking.drop}</p>
+            <p><strong>Distance:</strong> {booking.distance} km</p>
+            <p><strong>Fare:</strong> ₹{booking.fare}</p>
+            <p><strong>Duration:</strong> {booking.duration}</p>
+            <p><strong>Status:</strong> {booking.status}</p>
 
-            <p>
-              <strong>Pickup:</strong> {booking.pickup}
-            </p>
-
-            <p>
-              <strong>Drop:</strong> {booking.drop}
-            </p>
-
-            <p>
-              <strong>Distance:</strong> {booking.distance} km
-            </p>
-
-            <p>
-              <strong>Fare:</strong> ₹{booking.fare}
-            </p>
-
-            <p>
-              <strong>Duration:</strong> {booking.duration}
-            </p>
-
-            <p>
-              <strong>Status:</strong> {booking.status}
-            </p>
-
-            <button
-              onClick={() => handleDelete(booking._id)}
-              style={{
-                background: "red",
-                color: "white",
-                border: "none",
-                padding: "10px 18px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                marginTop: "10px",
-              }}
-            >
-              Delete Booking
-            </button>
+            <div style={{ display: "flex", gap: "10px", marginTop: "15px", maxWidth: "300px" }}>
+              <button
+                onClick={() => handleDeleteBooking(booking._id)}
+                style={{
+                  flex: 1,
+                  background: "#dc3545",
+                  color: "#f0e9e9",
+                  border: "none",
+                  padding: "8px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Delete Booking
+              </button>
+              <button
+                onClick={() => handleUpdateStatus(booking._id, booking.status)}
+                style={{
+                  flex: 1,
+                  background: "#198754",
+                  color: "#ece5e5",
+                  border: "none",
+                  padding: "8px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Update Status
+              </button>
+            </div>
           </div>
-        ))
-      )}
+        ))}
+      </div>
     </div>
   );
 }

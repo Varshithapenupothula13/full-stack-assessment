@@ -8,16 +8,9 @@ import {
 
 const router = express.Router();
 
-// Create Booking
-router.post("/create", createBooking);
-
-// Get Booking History
 router.get("/history", getBookingHistory);
-
-// Delete Booking
-router.delete("/:id", deleteBooking);
-
-// Update Booking Status
-router.put("/:id", updateBookingStatus);
+router.post("/create", createBooking);
+router.delete("/delete/:id", deleteBooking);
+router.put("/update/:id", updateBookingStatus);
 
 export default router;
