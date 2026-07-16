@@ -3,26 +3,33 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Default Leaflet Marker Icons Fix (Markers సరిగ్గా కనిపించడానికి)
-import markerIconPng from "leaflet/dist/images/marker-icon.png";
-import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
-
-const DefaultIcon = L.icon({
-  iconUrl: markerIconPng,
-  shadowUrl: markerShadowPng,
+// --- CUSTOM COLORED ICONS CONFIGURATION ---
+const greenIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
-L.Marker.prototype.options.icon = DefaultIcon;
 
-// 1. Map ని లొకేషన్ మారినప్పుడు ఆటోమేటిక్‌గా రీ-సెంటర్ చేసే హెల్పర్ కంపోనెంట్
+const redIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Helper component to handle dynamic view updates
 function ChangeMapView({ center, zoom }) {
   const map = useMap();
   useEffect(() => {
     if (center) {
       map.setView(center, zoom, {
         animate: true,
-        duration: 1.5, // 1.5 seconds smooth animation తో కొత్త లొకేషన్ కి వెళ్తుంది
+        duration: 1.2,
       });
     }
   }, [center, zoom, map]);
@@ -30,30 +37,29 @@ function ChangeMapView({ center, zoom }) {
 }
 
 function MapView({ pickupCoords, dropCoords }) {
-  // Default Center: Rajahmundry/Nidadavole area (AP)
-  const defaultCenter = [16.9891, 81.7835]; 
-  const defaultZoom = 10;
+  // Default coordinates (Nidadavole, Andhra Pradesh)
+  const defaultCenter = [16.9088, 81.6669];
+  const defaultZoom = 8;
 
-  // Map కి సెంటర్ లొకేషన్ డిసైడ్ చేయడం
   let mapCenter = defaultCenter;
   let currentZoom = defaultZoom;
 
+  // Calculate dynamic center and zoom based on markers
   if (pickupCoords && dropCoords) {
-    // రెండు లొకేషన్స్ ఉంటే వాటి మధ్యలోకి మ్యాప్ ని సెంటర్ చేస్తాం
     mapCenter = [
       (pickupCoords.lat + dropCoords.lat) / 2,
       (pickupCoords.lon + dropCoords.lon) / 2,
     ];
-    currentZoom = 11;
+    currentZoom = 7;
   } else if (pickupCoords) {
     mapCenter = [pickupCoords.lat, pickupCoords.lon];
-    currentZoom = 13;
+    currentZoom = 12;
   } else if (dropCoords) {
     mapCenter = [dropCoords.lat, dropCoords.lon];
-    currentZoom = 13;
+    currentZoom = 12;
   }
 
-  // Route లైన్ గీయడానికి పాయింట్స్
+  // Define polyline path
   const polylinePositions =
     pickupCoords && dropCoords
       ? [
@@ -74,26 +80,29 @@ function MapView({ pickupCoords, dropCoords }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* 2. లొకేషన్ మారిన ప్రతిసారి ఈ కంపోనెంట్ మ్యాప్ ని జూమ్/సెంటర్ చేస్తుంది */}
       <ChangeMapView center={mapCenter} zoom={currentZoom} />
 
       {/* Pickup Marker */}
       {pickupCoords && (
-        <Marker position={[pickupCoords.lat, pickupCoords.lon]}>
-          <Popup>📍 Pickup Location</Popup>
+        <Marker position={[pickupCoords.lat, pickupCoords.lon]} icon={greenIcon}>
+          <Popup>
+            <strong>Pickup Point</strong>
+          </Popup>
         </Marker>
       )}
 
       {/* Drop Marker */}
       {dropCoords && (
-        <Marker position={[dropCoords.lat, dropCoords.lon]}>
-          <Popup>🏁 Drop Location</Popup>
+        <Marker position={[dropCoords.lat, dropCoords.lon]} icon={redIcon}>
+          <Popup>
+            <strong>Drop Point</strong>
+          </Popup>
         </Marker>
       )}
 
-      {/* Route Line (Pickup to Drop బ్లూ లైన్) */}
+      {/* Route Path */}
       {polylinePositions.length > 0 && (
-        <Polyline positions={polylinePositions} color="#00aeff" weight={4} />
+        <Polyline positions={polylinePositions} color="#0d6efd" weight={4} dashArray="5, 10" />
       )}
     </MapContainer>
   );
