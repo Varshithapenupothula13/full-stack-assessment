@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import MapView from "../components/MapView";
 
 function Dashboard() {
@@ -24,33 +25,57 @@ function Dashboard() {
   }, []);
 
   const handleBookRide = async () => {
-    if (!pickup || !drop) {
-      alert("Please enter both Pickup and Drop locations!");
-      return;
-    }
+  if (!pickup || !drop) {
+    alert("Please enter both Pickup and Drop locations!");
+    return;
+  }
 
-    try {
-      const response = await fetch("http://localhost:5000/api/bookings/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pickup, drop, rideType: selectedRide }),
-      });
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/bookings/create",
+      {
+        pickup,
+        drop,
+        rideType: selectedRide,
+      }
+    );
 
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.message);
+    const { booking, order, key } = response.data;
+
+    const options = {
+      key,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Vihora",
+      description: "Ride Booking Payment",
+      order_id: order.id,
+
+      handler: function () {
+        alert("Payment Successful!");
+
         setPickup("");
         setDrop("");
         fetchHistory();
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Server error");
-    }
-  };
+      },
 
+      prefill: {
+        name: "Customer",
+        email: "customer@example.com",
+        contact: "9999999999",
+      },
+
+      theme: {
+        color: "#0d6efd",
+      },
+    };
+
+    const razor = new window.Razorpay(options);
+    razor.open();
+  } catch (error) {
+    console.error(error);
+    alert("Booking failed");
+  }
+};
   const handleUpdateStatus = async (id, currentStatus) => {
     try {
       const nextStatus = currentStatus === "Pending" ? "Confirmed" : "Completed";
