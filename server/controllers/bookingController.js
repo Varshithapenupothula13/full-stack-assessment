@@ -4,8 +4,7 @@ export const createBooking = async (req, res) => {
   try {
     const { pickup, drop, rideType } = req.body;
 
-    // Temporary calculations (later map integration tho real values vastayi)
-    const distance = Math.floor(Math.random() * 15) + 3; // 3 - 17 km
+    const distance = Math.floor(Math.random() * 15) + 3;
     const fare = 50 + distance * 15;
     const duration = `${distance * 4} mins`;
 
@@ -44,6 +43,23 @@ export const getBookingHistory = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch booking history",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteBooking = async (req, res) => {
+  try {
+    await Booking.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Booking deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete booking",
       error: error.message,
     });
   }

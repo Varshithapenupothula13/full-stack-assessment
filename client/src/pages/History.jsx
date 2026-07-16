@@ -3,12 +3,45 @@ import { useEffect, useState } from "react";
 function History() {
   const [bookings, setBookings] = useState([]);
 
-  useEffect(() => {
+  const fetchBookings = () => {
     fetch("http://localhost:5000/api/bookings/history")
       .then((res) => res.json())
       .then((data) => setBookings(data))
       .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    fetchBookings();
   }, []);
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this booking?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/bookings/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message);
+        setBookings(bookings.filter((booking) => booking._id !== id));
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Server Error");
+    }
+  };
 
   return (
     <div
@@ -16,184 +49,85 @@ function History() {
         minHeight: "100vh",
         background: "#0c381e",
         padding: "20px",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontFamily: "system-ui",
       }}
     >
-      {/* Navbar */}
-      <div
+      <h1
         style={{
-          maxWidth: "900px",
-          margin: "0 auto 30px auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          color: "#fff",
+          color: "white",
+          textAlign: "center",
+          marginBottom: "30px",
         }}
       >
-        <h2 style={{ margin: 0 }}>Ride Booking</h2>
+        Booking History
+      </h1>
 
+      {bookings.length === 0 ? (
         <div
           style={{
-            display: "flex",
-            gap: "25px",
-            fontSize: "16px",
-          }}
-        >
-          <span style={{ cursor: "pointer" }}>Book Ride</span>
-          <span style={{ cursor: "pointer", fontWeight: "bold" }}>
-            My Bookings
-          </span>
-        </div>
-      </div>
-
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "750px",
-          margin: "auto",
-        }}
-      >
-        <h2
-          style={{
-            color: "white",
+            background: "white",
+            padding: "20px",
+            borderRadius: "10px",
             textAlign: "center",
-            marginBottom: "25px",
-            fontSize: "28px",
           }}
         >
-          Your Booking History
-        </h2>
-
-        {bookings.length === 0 ? (
+          No Bookings Found
+        </div>
+      ) : (
+        bookings.map((booking) => (
           <div
+            key={booking._id}
             style={{
               background: "white",
               padding: "20px",
               borderRadius: "10px",
-              textAlign: "center",
+              marginBottom: "20px",
+              boxShadow: "0 5px 15px rgba(0,0,0,0.2)",
             }}
           >
-            No bookings found.
-          </div>
-        ) : (
-          bookings.map((booking, index) => (
-            <div
-              key={booking._id || index}
+            <h3>{booking.rideType}</h3>
+
+            <p>
+              <strong>Pickup:</strong> {booking.pickup}
+            </p>
+
+            <p>
+              <strong>Drop:</strong> {booking.drop}
+            </p>
+
+            <p>
+              <strong>Distance:</strong> {booking.distance} km
+            </p>
+
+            <p>
+              <strong>Fare:</strong> ₹{booking.fare}
+            </p>
+
+            <p>
+              <strong>Duration:</strong> {booking.duration}
+            </p>
+
+            <p>
+              <strong>Status:</strong> {booking.status}
+            </p>
+
+            <button
+              onClick={() => handleDelete(booking._id)}
               style={{
-                background: "#1f2937",
+                background: "red",
                 color: "white",
-                borderRadius: "12px",
-                padding: "20px",
-                marginBottom: "20px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
+                border: "none",
+                padding: "10px 18px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                marginTop: "10px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "15px",
-                }}
-              >
-                <div>
-                  <h3
-                    style={{
-                      margin: 0,
-                      fontSize: "22px",
-                    }}
-                  >
-                    Booking #{index + 1}
-                  </h3>
-
-                  <p
-                    style={{
-                      marginTop: "6px",
-                      color: "#cbd5e1",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {booking.createdAt 
-                      ? new Date(booking.createdAt).toLocaleString() 
-                      : new Date().toLocaleString()}
-                  </p>
-                </div>
-
-                <span
-                  style={{
-                    background: "#f59e0b",
-                    padding: "6px 14px",
-                    borderRadius: "20px",
-                    fontSize: "13px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Pending
-                </span>
-              </div>
-
-              <p style={{ marginBottom: "10px" }}>
-                📍 <strong>Pickup:</strong> {booking.pickup}
-              </p>
-
-              <p style={{ marginBottom: "10px" }}>
-                🏁 <strong>Drop:</strong> {booking.drop}
-              </p>
-
-              {/* Part 2 Code Starts Here */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderTop: "1px solid #374151",
-                  marginTop: "15px",
-                  paddingTop: "15px",
-                }}
-              >
-                <div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "13px",
-                      color: "#cbd5e1",
-                    }}
-                  >
-                    Ride Type
-                  </p>
-                  <strong>{booking.rideType}</strong>
-                </div>
-
-                <div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "13px",
-                      color: "#cbd5e1",
-                    }}
-                  >
-                    Distance
-                  </p>
-                  <strong>{booking.distance} km</strong>
-                </div>
-
-                <div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "13px",
-                      color: "#cbd5e1",
-                    }}
-                  >
-                    Fare
-                  </p>
-                  <strong style={{ color: "#22c55e" }}>₹{booking.fare ? booking.fare.toFixed(2) : "0.00"}</strong>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+              Delete Booking
+            </button>
+          </div>
+        ))
+      )}
     </div>
   );
 }
