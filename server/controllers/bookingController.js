@@ -48,19 +48,4 @@ export const getBookingHistory = async (req, res) => {
   }
 };
 
-export const deleteBooking = async (req, res) => {
-  try {
-    await Booking.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Booking deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete booking",
-      error: error.message,
-    });
-  }
-};
+export const
