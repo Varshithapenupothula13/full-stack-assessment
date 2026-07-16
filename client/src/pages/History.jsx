@@ -4,7 +4,7 @@ function History() {
   const [bookings, setBookings] = useState([]);
   const [search, setSearch] = useState("");
 const [rideFilter, setRideFilter] = useState("All");
-
+const [sortBy, setSortBy] = useState("newest");
   const fetchBookings = () => {
     fetch("http://localhost:5000/api/bookings/history")
       .then((res) => res.json())
@@ -44,16 +44,25 @@ const [rideFilter, setRideFilter] = useState("All");
       alert("Server Error");
     }
   };
-const filteredBookings = bookings.filter((booking) => {
-  const matchesSearch =
-    booking.pickup.toLowerCase().includes(search.toLowerCase()) ||
-    booking.drop.toLowerCase().includes(search.toLowerCase());
+  const filteredBookings = bookings
+  .filter((booking) => {
+    const matchesSearch =
+      booking.pickup.toLowerCase().includes(search.toLowerCase()) ||
+      booking.drop.toLowerCase().includes(search.toLowerCase());
 
-  const matchesRide =
-    rideFilter === "All" || booking.rideType === rideFilter;
+    const matchesRide =
+      rideFilter === "All" || booking.rideType === rideFilter;
 
-  return matchesSearch && matchesRide;
-});
+    return matchesSearch && matchesRide;
+  })
+  .sort((a, b) => {
+    if (sortBy === "fareLow") return a.fare - b.fare;
+    if (sortBy === "fareHigh") return b.fare - a.fare;
+    if (sortBy === "oldest")
+      return new Date(a.createdAt) - new Date(b.createdAt);
+
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
   return (
     <div
       style={{
@@ -105,8 +114,21 @@ const filteredBookings = bookings.filter((booking) => {
   <option value="Auto">Auto</option>
   <option value="Car">Car</option>
 </select>
+<select
+  value={sortBy}
+  onChange={(e) => setSortBy(e.target.value)}
+  style={{
+    padding: "10px",
+    borderRadius: "6px",
+  }}
+>
+  <option value="newest">Newest</option>
+  <option value="oldest">Oldest</option>
+  <option value="fareLow">Fare Low → High</option>
+  <option value="fareHigh">Fare High → Low</option>
+</select>
   </div>
-      {bookings.length === 0 ? (
+      {filteredBookings.length === 0 ? (
         <div
           style={{
             background: "white",
