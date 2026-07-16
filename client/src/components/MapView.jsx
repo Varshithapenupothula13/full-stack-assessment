@@ -1,129 +1,101 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-leaflet";
 import L from "leaflet";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-} from "react-leaflet";
-
 import "leaflet/dist/leaflet.css";
-import "leaflet-routing-machine";
-import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
-function ChangeMapView({ center }) {
+// Default Leaflet Marker Icons Fix (Markers సరిగ్గా కనిపించడానికి)
+import markerIconPng from "leaflet/dist/images/marker-icon.png";
+import markerShadowPng from "leaflet/dist/images/marker-shadow.png";
+
+const DefaultIcon = L.icon({
+  iconUrl: markerIconPng,
+  shadowUrl: markerShadowPng,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// 1. Map ని లొకేషన్ మారినప్పుడు ఆటోమేటిక్‌గా రీ-సెంటర్ చేసే హెల్పర్ కంపోనెంట్
+function ChangeMapView({ center, zoom }) {
   const map = useMap();
-
   useEffect(() => {
-    map.setView(center, 11);
-  }, [center, map]);
-
+    if (center) {
+      map.setView(center, zoom, {
+        animate: true,
+        duration: 1.5, // 1.5 seconds smooth animation తో కొత్త లొకేషన్ కి వెళ్తుంది
+      });
+    }
+  }, [center, zoom, map]);
   return null;
 }
 
-function Routing({ pickupCoords, dropCoords }) {
-  const map = useMap();
+function MapView({ pickupCoords, dropCoords }) {
+  // Default Center: Rajahmundry/Nidadavole area (AP)
+  const defaultCenter = [16.9891, 81.7835]; 
+  const defaultZoom = 10;
 
-  useEffect(() => {
-    if (!pickupCoords || !dropCoords) return;
+  // Map కి సెంటర్ లొకేషన్ డిసైడ్ చేయడం
+  let mapCenter = defaultCenter;
+  let currentZoom = defaultZoom;
 
-    const routingControl = L.Routing.control({
-      waypoints: [
-        L.latLng(pickupCoords[0], pickupCoords[1]),
-        L.latLng(dropCoords[0], dropCoords[1]),
-      ],
-      routeWhileDragging: false,
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: true,
-      show: false,
-    }).addTo(map);
+  if (pickupCoords && dropCoords) {
+    // రెండు లొకేషన్స్ ఉంటే వాటి మధ్యలోకి మ్యాప్ ని సెంటర్ చేస్తాం
+    mapCenter = [
+      (pickupCoords.lat + dropCoords.lat) / 2,
+      (pickupCoords.lon + dropCoords.lon) / 2,
+    ];
+    currentZoom = 11;
+  } else if (pickupCoords) {
+    mapCenter = [pickupCoords.lat, pickupCoords.lon];
+    currentZoom = 13;
+  } else if (dropCoords) {
+    mapCenter = [dropCoords.lat, dropCoords.lon];
+    currentZoom = 13;
+  }
 
-    return () => {
-      map.removeControl(routingControl);
-    };
-  }, [map, pickupCoords, dropCoords]);
-
-  return null;
-}
-
-function MapView({ pickup, drop }) {
-  const [pickupCoords, setPickupCoords] = useState([17.0005, 81.8040]);
-  const [dropCoords, setDropCoords] = useState([16.9891, 82.2475]);
-
-  useEffect(() => {
-    const getCoordinates = async () => {
-      try {
-        if (pickup) {
-          const pickupRes = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&countrycodes=IN&limit=1&q=${pickup}`
-          );
-
-          if (pickupRes.data.length > 0) {
-            setPickupCoords([
-              parseFloat(pickupRes.data[0].lat),
-              parseFloat(pickupRes.data[0].lon),
-            ]);
-          }
-        }
-
-        if (drop) {
-          const dropRes = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&countrycodes=IN&limit=1&q=${drop}`
-          );
-
-          if (dropRes.data.length > 0) {
-            setDropCoords([
-              parseFloat(dropRes.data[0].lat),
-              parseFloat(dropRes.data[0].lon),
-            ]);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getCoordinates();
-  }, [pickup, drop]);
+  // Route లైన్ గీయడానికి పాయింట్స్
+  const polylinePositions =
+    pickupCoords && dropCoords
+      ? [
+          [pickupCoords.lat, pickupCoords.lon],
+          [dropCoords.lat, dropCoords.lon],
+        ]
+      : [];
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        borderRadius: "10px",
-        overflow: "hidden",
-      }}
+    <MapContainer
+      center={mapCenter}
+      zoom={currentZoom}
+      style={{ width: "100%", height: "100%" }}
+      zoomControl={true}
     >
-      <MapContainer
-        center={pickupCoords}
-        zoom={11}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <ChangeMapView center={pickupCoords} />
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
 
-        <Routing
-          pickupCoords={pickupCoords}
-          dropCoords={dropCoords}
-        />
+      {/* 2. లొకేషన్ మారిన ప్రతిసారి ఈ కంపోనెంట్ మ్యాప్ ని జూమ్/సెంటర్ చేస్తుంది */}
+      <ChangeMapView center={mapCenter} zoom={currentZoom} />
 
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        <Marker position={pickupCoords}>
+      {/* Pickup Marker */}
+      {pickupCoords && (
+        <Marker position={[pickupCoords.lat, pickupCoords.lon]}>
           <Popup>📍 Pickup Location</Popup>
         </Marker>
+      )}
 
-        <Marker position={dropCoords}>
+      {/* Drop Marker */}
+      {dropCoords && (
+        <Marker position={[dropCoords.lat, dropCoords.lon]}>
           <Popup>🏁 Drop Location</Popup>
         </Marker>
-      </MapContainer>
-    </div>
+      )}
+
+      {/* Route Line (Pickup to Drop బ్లూ లైన్) */}
+      {polylinePositions.length > 0 && (
+        <Polyline positions={polylinePositions} color="#00aeff" weight={4} />
+      )}
+    </MapContainer>
   );
 }
 
