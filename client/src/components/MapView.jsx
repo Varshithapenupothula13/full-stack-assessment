@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import L from "leaflet";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
-  Polyline,
   useMap,
 } from "react-leaflet";
+
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
 function ChangeMapView({ center }) {
   const map = useMap();
 
@@ -18,6 +22,33 @@ function ChangeMapView({ center }) {
 
   return null;
 }
+
+function Routing({ pickupCoords, dropCoords }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!pickupCoords || !dropCoords) return;
+
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(pickupCoords[0], pickupCoords[1]),
+        L.latLng(dropCoords[0], dropCoords[1]),
+      ],
+      routeWhileDragging: false,
+      addWaypoints: false,
+      draggableWaypoints: false,
+      fitSelectedRoutes: true,
+      show: false,
+    }).addTo(map);
+
+    return () => {
+      map.removeControl(routingControl);
+    };
+  }, [map, pickupCoords, dropCoords]);
+
+  return null;
+}
+
 function MapView({ pickup, drop }) {
   const [pickupCoords, setPickupCoords] = useState([17.0005, 81.8040]);
   const [dropCoords, setDropCoords] = useState([16.9891, 82.2475]);
@@ -27,7 +58,7 @@ function MapView({ pickup, drop }) {
       try {
         if (pickup) {
           const pickupRes = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${pickup}`
+            `https://nominatim.openstreetmap.org/search?format=json&countrycodes=IN&limit=1&q=${pickup}`
           );
 
           if (pickupRes.data.length > 0) {
@@ -40,7 +71,7 @@ function MapView({ pickup, drop }) {
 
         if (drop) {
           const dropRes = await axios.get(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${drop}`
+            `https://nominatim.openstreetmap.org/search?format=json&countrycodes=IN&limit=1&q=${drop}`
           );
 
           if (dropRes.data.length > 0) {
@@ -73,6 +104,12 @@ function MapView({ pickup, drop }) {
         style={{ width: "100%", height: "100%" }}
       >
         <ChangeMapView center={pickupCoords} />
+
+        <Routing
+          pickupCoords={pickupCoords}
+          dropCoords={dropCoords}
+        />
+
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -85,14 +122,6 @@ function MapView({ pickup, drop }) {
         <Marker position={dropCoords}>
           <Popup>🏁 Drop Location</Popup>
         </Marker>
-
-        <Polyline
-          positions={[pickupCoords, dropCoords]}
-          pathOptions={{
-            color: "blue",
-            weight: 5,
-          }}
-        />
       </MapContainer>
     </div>
   );

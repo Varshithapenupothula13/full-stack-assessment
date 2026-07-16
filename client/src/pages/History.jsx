@@ -187,7 +187,7 @@ function History() {
                   >
                     Fare
                   </p>
-                  <strong style={{ color: "#22c55e" }}>₹{booking.fare.toFixed(2)}</strong>
+                  <strong style={{ color: "#22c55e" }}>₹{booking.fare ? booking.fare.toFixed(2) : "0.00"}</strong>
                 </div>
               </div>
             </div>
