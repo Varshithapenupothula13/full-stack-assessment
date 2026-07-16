@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 function History() {
   const [bookings, setBookings] = useState([]);
+  const [search, setSearch] = useState("");
+const [rideFilter, setRideFilter] = useState("All");
 
   const fetchBookings = () => {
     fetch("http://localhost:5000/api/bookings/history")
@@ -42,7 +44,16 @@ function History() {
       alert("Server Error");
     }
   };
+const filteredBookings = bookings.filter((booking) => {
+  const matchesSearch =
+    booking.pickup.toLowerCase().includes(search.toLowerCase()) ||
+    booking.drop.toLowerCase().includes(search.toLowerCase());
 
+  const matchesRide =
+    rideFilter === "All" || booking.rideType === rideFilter;
+
+  return matchesSearch && matchesRide;
+});
   return (
     <div
       style={{
@@ -61,7 +72,40 @@ function History() {
       >
         Booking History
       </h1>
-
+<div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "20px",
+  }}
+>
+  <input
+    type="text"
+    placeholder="Search Pickup or Drop"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    style={{
+      padding: "10px",
+      width: "250px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+    }}
+  />
+<select
+  value={rideFilter}
+  onChange={(e) => setRideFilter(e.target.value)}
+  style={{
+    padding: "10px",
+    borderRadius: "6px",
+  }}
+>
+  <option value="All">All</option>
+  <option value="Bike">Bike</option>
+  <option value="Auto">Auto</option>
+  <option value="Car">Car</option>
+</select>
+  </div>
       {bookings.length === 0 ? (
         <div
           style={{
@@ -74,7 +118,7 @@ function History() {
           No Bookings Found
         </div>
       ) : (
-        bookings.map((booking) => (
+        filteredBookings.map((booking) => (
           <div
             key={booking._id}
             style={{
