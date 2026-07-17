@@ -160,7 +160,7 @@ function Dashboard() {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/bookings/history");
+      const response = await fetch("https://full-stack-assessment-fwgb.onrender.com/api/bookings/history");
       const data = await response.json();
       if (response.ok) {
         setBookings(data);
@@ -219,7 +219,7 @@ function Dashboard() {
       const dynamicFare = fareEstimates[selectedRide];
 
       const response = await axios.post(
-        "http://localhost:5000/api/bookings/create",
+        "https://full-stack-assessment-fwgb.onrender.com/api/bookings/create",
         {
           pickup,
           drop,
@@ -244,7 +244,7 @@ function Dashboard() {
         order_id: order.id,
         handler: async function () {
           try {
-            await fetch(`http://localhost:5000/api/bookings/update/${booking._id}`, {
+            await fetch(`https://full-stack-assessment-fwgb.onrender.com/api/bookings/update/${booking._id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ status: "Confirmed" }),
@@ -291,7 +291,7 @@ function Dashboard() {
   const handleUpdateStatus = async (id, currentStatus) => {
     try {
       const nextStatus = currentStatus === "Pending" ? "Confirmed" : "Completed";
-      const response = await fetch(`http://localhost:5000/api/bookings/update/${id}`, {
+      const response = await fetch(`https://full-stack-assessment-fwgb.onrender.com/api/bookings/update/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
@@ -308,7 +308,7 @@ function Dashboard() {
 
   const handleDeleteBooking = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/bookings/delete/${id}`, {
+      const response = await fetch(`https://full-stack-assessment-fwgb.onrender.com/api/bookings/delete/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
