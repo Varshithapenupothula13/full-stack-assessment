@@ -3,11 +3,14 @@ import { razorpay } from "../index.js";
 
 export const createBooking = async (req, res) => {
   try {
-    const { pickup, drop, rideType } = req.body;
+    const { pickup, drop, rideType, distance: reqDistance, fare: reqFare, duration: reqDuration } = req.body;
+    console.log("Fare received:", reqFare);
 
-    const distance = Math.floor(Math.random() * 15) + 3;
-    const fare = 50 + distance * 15;
-    const duration = `${distance * 4} mins`;
+    // Use the frontend-calculated values (estimated fare shown to the user).
+    // Fall back to a server-side calculation only if the values are missing.
+    const distance = reqDistance || Math.floor(Math.random() * 15) + 3;
+    const fare = reqFare || 50 + distance * 15;
+    const duration = reqDuration || `${distance * 4} mins`;
 
     const options = {
       amount: fare * 100,
