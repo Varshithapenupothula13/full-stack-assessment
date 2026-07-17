@@ -1,111 +1,93 @@
-import React, { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
 
-// --- CUSTOM COLORED ICONS CONFIGURATION ---
-const greenIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+// Leaflet default icons path crash fix
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const redIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-// Helper component to handle dynamic view updates
-function ChangeMapView({ center, zoom }) {
+function MapController({ pickupCoords, dropCoords }) {
   const map = useMap();
+
   useEffect(() => {
-    if (center) {
-      map.setView(center, zoom, {
-        animate: true,
-        duration: 1.2,
-      });
+    if (!map) return;
+
+    // Paatha control arrays overlapping markers clear chesthundi
+    if (map.routeControl) {
+      map.removeControl(map.routeControl);
+      map.routeControl = null;
     }
-  }, [center, zoom, map]);
+
+    // Dynamic Polyline & routing trigger condition logic
+    if (pickupCoords && dropCoords) {
+      const pLat = pickupCoords.lat;
+      const pLon = pickupCoords.lon || pickupCoords.lng;
+      const dLat = dropCoords.lat;
+      const dLon = dropCoords.lon || dropCoords.lng;
+
+      if (pLat && pLon && dLat && dLon) {
+        const routingControl = L.Routing.control({
+          waypoints: [L.latLng(pLat, pLon), L.latLng(dLat, dLon)],
+          lineOptions: {
+            styles: [{ color: "#0d6efd", weight: 6, opacity: 0.8 }] // Smooth routing trace blue line
+          },
+          createMarker: () => null, // Built-in numbers clean logic marker
+          addWaypoints: false,
+          draggableWaypoints: false,
+          fitSelectedRoutes: true
+        }).addTo(map);
+
+        map.routeControl = routingControl;
+      }
+    } else if (pickupCoords) {
+      // Input data type map animation flyover focus code logic
+      const lat = pickupCoords.lat;
+      const lon = pickupCoords.lon || pickupCoords.lng;
+      if (lat && lon) {
+        map.flyTo([lat, lon], 14, { animate: true });
+      }
+    }
+  }, [pickupCoords, dropCoords, map]);
+
   return null;
 }
 
-function MapView({ pickupCoords, dropCoords }) {
-  // Default coordinates (Nidadavole, Andhra Pradesh)
-  const defaultCenter = [16.9088, 81.6669];
-  const defaultZoom = 8;
+export default function MapView({ pickupCoords, dropCoords }) {
+  const defaultCenter = [17.0005, 81.7835]; // Rajahmundry center default fallback pointer
 
-  let mapCenter = defaultCenter;
-  let currentZoom = defaultZoom;
+  const getPos = (coords) => {
+    if (!coords) return null;
+    const lat = coords.lat;
+    const lon = coords.lon || coords.lng;
+    return lat && lon ? [lat, lon] : null;
+  };
 
-  // Calculate dynamic center and zoom based on markers
-  if (pickupCoords && dropCoords) {
-    mapCenter = [
-      (pickupCoords.lat + dropCoords.lat) / 2,
-      (pickupCoords.lon + dropCoords.lon) / 2,
-    ];
-    currentZoom = 7;
-  } else if (pickupCoords) {
-    mapCenter = [pickupCoords.lat, pickupCoords.lon];
-    currentZoom = 12;
-  } else if (dropCoords) {
-    mapCenter = [dropCoords.lat, dropCoords.lon];
-    currentZoom = 12;
-  }
-
-  // Define polyline path
-  const polylinePositions =
-    pickupCoords && dropCoords
-      ? [
-          [pickupCoords.lat, pickupCoords.lon],
-          [dropCoords.lat, dropCoords.lon],
-        ]
-      : [];
+  const pickupPos = getPos(pickupCoords);
+  const dropPos = getPos(dropCoords);
 
   return (
-    <MapContainer
-      center={mapCenter}
-      zoom={currentZoom}
-      style={{ width: "100%", height: "100%" }}
-      zoomControl={true}
-    >
+    <MapContainer center={defaultCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
-
-      <ChangeMapView center={mapCenter} zoom={currentZoom} />
-
-      {/* Pickup Marker */}
-      {pickupCoords && (
-        <Marker position={[pickupCoords.lat, pickupCoords.lon]} icon={greenIcon}>
-          <Popup>
-            <strong>Pickup Point</strong>
-          </Popup>
+      {pickupPos && (
+        <Marker position={pickupPos}>
+          <Popup>📍 Pickup Point</Popup>
         </Marker>
       )}
-
-      {/* Drop Marker */}
-      {dropCoords && (
-        <Marker position={[dropCoords.lat, dropCoords.lon]} icon={redIcon}>
-          <Popup>
-            <strong>Drop Point</strong>
-          </Popup>
+      {dropPos && (
+        <Marker position={dropPos}>
+          <Popup>🏁 Drop Point</Popup>
         </Marker>
       )}
-
-      {/* Route Path */}
-      {polylinePositions.length > 0 && (
-        <Polyline positions={polylinePositions} color="#0d6efd" weight={4} dashArray="5, 10" />
-      )}
+      <MapController pickupCoords={pickupCoords} dropCoords={dropCoords} />
     </MapContainer>
   );
 }
-
-export default MapView;
